@@ -1,5 +1,7 @@
 # Git 分布式版本控制工具
 
+------
+
 ：无论学什么框架，最好熟悉官网
 
 > Everything is local. 可以记录文件修改的历史记录，方便历史版本的查阅、切换，从而从个人开发过渡到团队协作。
@@ -157,6 +159,8 @@ boyanli01@foxmail.com
 
 # GitHub Git官方代码托管中心
 
+------
+
 ### 1.创建远程库
 
 - 远程和本地库名相同（便于管理）
@@ -236,6 +240,8 @@ git remote set-url origin git@github.com:username/repo.git
 
 # Gitee码云 国内版
 
+------
+
 推荐使用https协议，因为服务器就在国内（SSH设置和GitHub一模一样）
 
 ### *.Gitee连接GitHub进行代码复制、迁移、强制更新内容
@@ -253,6 +259,8 @@ git remote set-url origin git@github.com:username/repo.git
 
 
 # IDEA插件：Git Github Gitee
+
+------
 
 在Intellij IDEA中集成使用：git github gitee 三合一（就是不想用gitlab！！！）
 
@@ -318,13 +326,11 @@ VCS（Version Control System）-> Import into Version Control -> Create Git Repo
 
 
 
+# *GitLab 基于局域网的托管器 公司版
 
+------
 
-
-
-# *GitLab 基于局域网的托管器 公司版（暂时用不到 不想学）
-
-托管在公司服务器上 不公开 没有打算把代码放到互联网上
+托管在公司服务器上 不公开 没有打算把代码放到互联网上（暂时用不到不想学）
 
 ### 1.服务器搭建 部署
 
