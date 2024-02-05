@@ -1,29 +1,46 @@
 <!DOCTYPE html>
 <html lang="en">
 
+<!-- 不显示给用户看的元数据（metadata）：关于文档的信息和外部资源链接 -->
 <head>
+  <!-- 设置文档的字符编码 -->
   <meta charset="UTF-8">
+  <!-- 定义浏览器窗口的标题 -->
   <title>Document</title>
+  <!-- 设置浏览器兼容模式，优先使用IE最新版本和Chrome -->
   <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+  <!-- 页面描述 -->
   <meta name="description" content="Description">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0">
+  <!-- 视口设置，适应不同设备 -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <!-- 1. Theme Customize -->
+  <!-- 引入Docsify的Vue主题样式 使用推荐方法自动不断接收不间断的增强功能-->
   <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/docsify@4/lib/themes/vue.css">
-
+  <script src="//cdn.jsdelivr.net/npm/docsify@4"></script>
+  <!-- 引入PrismJS 渲染代码块 -->
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/prismjs/themes/prism.css">
+<script src="//cdn.jsdelivr.net/npm/prismjs/prism.js"></script>
 
 </head>
 
-
+<!--显示给用户看的所有内容：用户实际交互的内容-->
+<!-- index.html -->
 <body>
+  <!-- Docsify 渲染的内容将放在这个 div 中 -->
   <div id="app"></div>
+  <!-- 配置脚本 -->
   <script>
     window.$docsify = {
       name: '',
-      repo: ''
+      repo: 'docsifyjs/docsify',  // defining window.$docsify as an object
+      homepage: '"Hello-DaC".md',      // 定义首页显示的markdown源文档
+      maxLevel: 3,
+      auto2top: true,             // scrolls to the top of the screen when the route is changed.
+      loadSidebar: true,
+      autoHeader: true,
     }
   </script>
-  <!-- Docsify v4 -->
-  <script src="//cdn.jsdelivr.net/npm/docsify@4"></script>
+  <!-- 加载 Docsify 库 -->
+  <script src="//cdn.jsdelivr.net/npm/docsify/lib/docsify.min.js"></script>
 </body>
 </html>
