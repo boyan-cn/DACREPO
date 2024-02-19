@@ -28,8 +28,6 @@
 3. **自动化**：代码化允许自动化许多常规任务，提高效率并减少人为错误。
 4. **文档化**：代码本身及其注释可以作为配置的文档。
 
-
-
 ## （一）技术选型
 
 - 同型产品：docsify，Hexo，Wordpress。
@@ -42,9 +40,7 @@
 
 - 因为现阶段重点是先上线，然后再逐渐调整自己的仓库内的的目录内容结构。
 
-
-
-## （二）对 Docsify 开始了解
+## （二）开始了解 Docsify
 
 -- 大概知道怎么一动手发现好好玩啊：
 
@@ -55,16 +51,49 @@
 接着调用`docsify serve`命令然后访问`http://localhost:3000`即可进行本地预览；
 
 
-## （三）在 Docsify 部署文档目录结构
+## （三）部署 Docsify 文档目录结构
 
 - 本阶段目的是：顺利的通过 docsify 部署显示本地 markdown 文档的目录结构；
 
+## （四）设置Picgo图床Gitee
 
+#### 1. 选型
 
+​		基本面向国内访问，所以在gitee和github中选择前者，具有更高的加载速度；
 
+#### 2. 搭建私人图床（Gitee + PicGo + Typora）
 
+​		 https://blog.csdn.net/LarrYFinal/article/details/115439860
 
+#### 3. 解决：PicGo插件安装失败，失败码为1（404）
 
+​		https://blog.csdn.net/Netceor/article/details/126704416
+
+​		我的日志报错是macOS权限问题，灵活更改的解决方案是，在terminal中使用命令行下载时，使用`sudo`权限下载；
+
+#### 4. 解决：配置 `sudo` 无需密码
+
+- 为此，使用 `visudo` 命令编辑 `sudoers`文件：
+
+  ```shell
+  sudo visudo
+  ```
+
+- 然后添加一行配置，指定允许无密码执行`sudo` 的用户：
+
+  ```
+  your_username ALL=(ALL) NOPASSWD: ALL
+  ```
+
+  将 `your_username`替换为你的用户名。
+
+#### 5. 解决：Typora Picgo Gitee 上传图片失败
+
+​	https://blog.csdn.net/luolaihua2018/article/details/122350976
+
+​	最后发现是在typora中设置picgo上传规则的问题；
+
+​	已解决！耶！配置一些自动化成功🏅
 
 
 
