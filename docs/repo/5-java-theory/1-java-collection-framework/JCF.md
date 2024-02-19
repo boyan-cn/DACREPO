@@ -21,7 +21,7 @@ Java提供Map->Collection之间转换的快捷方法，需要的时候可以直�
 
   ​	因为Map存储的信息能比Collection多出关联关系的部分，当只需要对其中一类Object进行处理时，将这一类单独转换成Collection从而进行快速操作，会很方便！比如：在某类Object中查找/排序某项内容，就可以转换后再对这个Collection进行方法调用，可以很大程度上简化操作。
 
-![image-jcf-01](https://gitee.com/boyancn/pic-bed/raw/main/img/image-jcf-01.png)
+![image-jcf-01](https://raw.githubusercontent.com/boyan-cn/pic-bed/main/img/image-jcf-01-20240219222121429.png)
 
 - 其中虚线表示实现，实现表示继承；
 - Stack 已经在JDK1.6中就被 **Deque** 取代了；
@@ -125,7 +125,7 @@ HashMap 基础结构：
       - 查找的时间复杂度：O(N)->O(logN)；
       - 红黑树访问顺序：顺序访问 == 中序遍历；
 
-<img src="https://gitee.com/boyancn/pic-bed/raw/main/img/image-jcf-02.png" alt="image-jcf-02" style="zoom:30%;" />
+<img src="https://raw.githubusercontent.com/boyan-cn/pic-bed/main/img/image-jcf-02.png" alt="image-jcf-02" style="zoom:30%;" />
 
 ##### 1.2.3 - 调用方法
 
@@ -187,7 +187,7 @@ public HashMap(int initialCapacity, float loadFactor){// ...}
 
 ##### 2.1.1 - ArrayList 基于动态数组
 
-<img src="https://gitee.com/boyancn/pic-bed/raw/main/img/image-jcf-03.png" alt="image-jcf-03" style="zoom:40%;" />
+<img src="https://raw.githubusercontent.com/boyan-cn/pic-bed/main/img/image-jcf-03.png" alt="image-jcf-03" style="zoom:40%;" />
 
 基于动态数组实现,所以基本与数组特性一致。
 
