@@ -1,11 +1,11 @@
-# Readme
+# Dac Tutorial
 
     :在DACREPO目录下，使用`terminal`运行本地服务器 `docsify serve`，就可以在浏览器中预览网站http://localhost:3000 ，命令行：`docsify serve docs`
-
+    
     最近接触到“文档即代码”管理理念（Document as Code），于是慢慢着手建立一个在线的个人知识管理仓库（PKM Repo, Personal Knowledge Management Repository），持续优化中。
-
+    
     “～/docs/repo”：中存放所有的public的在线文档。
-
+    
     技术选择：
 
 - git：本地分布式版本控制工具；
@@ -59,7 +59,7 @@
 #### 3. 解决：PicGo插件安装失败，失败码为1（404）
 
     https://blog.csdn.net/Netceor/article/details/126704416
-
+    
     我的日志报错是macOS权限问题，灵活更改的解决方案是，在terminal中使用命令行下载时，使用`sudo`权限下载；
 
 #### 4. 解决：配置 `sudo` 无需密码
@@ -80,7 +80,7 @@
 #### 5. 解决：Typora Picgo Gitee 上传图片失败
 
     https://blog.csdn.net/luolaihua2018/article/details/122350976
-
+    
     最后发现是在typora中设置picgo上传规则的问题；
-
+    
     已解决！耶！配置一些自动化成功🏅

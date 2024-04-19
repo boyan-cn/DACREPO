@@ -1,6 +1,6 @@
 
 
-# Java 算法与数据结构 写在前面
+# Overview：算法与数据结构 in Java
 
 ：按时间顺序补充，而非重要程度，持续更新中 - boyan 5th.Feb.2024
 
@@ -28,7 +28,9 @@
 ------
 
 ### 3. 怎么准备&做哪些题？
--
+- 代码随想录200题：https://programmercarl.com/
+
+- LeetCode 热题 HOT 100：https://leetcode-cn.com/problem-list/2cktkvj/?page=1
 
 
 ------
