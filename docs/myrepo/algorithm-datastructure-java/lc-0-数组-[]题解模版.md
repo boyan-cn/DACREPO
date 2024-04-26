@@ -1,10 +1,6 @@
 # Leetcode 704.二分查找
 
-> [!TIP]
->
-> - 把 704写熟练，要**熟悉 根据 左闭右开，左闭右闭 两种区间规则 写出来的二分法**。
->
-> - 二分查找，核心：**循环不变量**（区间）
+
 
 Leetcode 题目跳转： [704. 二分查找](https://leetcode.cn/problems/binary-search/description/)
 
