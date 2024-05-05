@@ -11,13 +11,13 @@
 >   4. 构建管理：构建过程、构建场景、构建周期等；
 >   5. 继承和聚合：理解继承和聚合作用、继承语法和实践、聚合语法和实践；
 
-<span style="color:#FFFFFF;">
+
 
 - 全部详细版完整资料在线化：http://www.wolai.com/v5Kuct5ZtPeVBk4NBUGBWF
 
-- maven： [“一、高效构建 Java 应用：Maven 入门和进阶](”https://www.wolai.com/fbnhGx8eE9JfZugFpbCWmC)
+- maven： [一、高效构建 Java 应用：Maven 入门和进阶](”https://www.wolai.com/fbnhGx8eE9JfZugFpbCWmC)
 
-</span>
+  
 
 # 一、Maven 简介和快速入门
 
