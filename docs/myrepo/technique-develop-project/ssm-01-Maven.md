@@ -1,23 +1,20 @@
-# Part01 - Maven(版本3.6.3) - 总结重点速成版
+# Part01 - Maven(版本3.6.3) - 重点版
 
 > [!TIP]
 >
 > - **Maven 是一个工具、软件（项目构建和依赖工具），学会如何使用即可；**
->
 > - Maven 核心点掌握总结：
 >   1. 安装：maven安装、环境变量、maven配置文件修改；
 >   2. 工程创建：gavp属性理解、JavaSE/EE工程创建、项目结构；
 >   3. *依赖管理：依赖添加、依赖传递、版本提取、导入依赖错误解决；
 >   4. 构建管理：构建过程、构建场景、构建周期等；
 >   5. 继承和聚合：理解继承和聚合作用、继承语法和实践、聚合语法和实践；
+>
+> 相关文章链接：
+>
+> - maven： [一、高效构建 Java 应用：Maven 入门和进阶](https://www.wolai.com/fbnhGx8eE9JfZugFpbCWmC)
 
 
-
-- 全部详细版完整资料在线化：http://www.wolai.com/v5Kuct5ZtPeVBk4NBUGBWF
-
-- maven： [一、高效构建 Java 应用：Maven 入门和进阶](”https://www.wolai.com/fbnhGx8eE9JfZugFpbCWmC)
-
-  
 
 # 一、Maven 简介和快速入门
 
