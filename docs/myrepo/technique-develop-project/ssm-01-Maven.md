@@ -449,7 +449,7 @@ Eg. 父工程，不打包，也不写代码，只做 pom.xml 配置的传递。�
 
 通过在父工程中为整个项目维护依赖信息的组合既保证了整个项目使用规范、准确的 jar 包；又能够将以往的经验沉淀下来，节约时间和精力。
 
-### 3 - pom.xml 配置 - 父子工程继承
+### 3 - pom.xml 配置 - 工程之间的继承关系
 
 - 父工程 pom.xml 
 
@@ -481,9 +481,11 @@ Eg. 父工程，不打包，也不写代码，只做 pom.xml 配置的传递。�
 
 ### 4 - pom.xml 配置 - 依赖统一管理
 
+在Maven的`pom.xml`文件中，父工程通过`dependencyManagement`元素配置的作用是指定了一个依赖管理部分，用于集中管理子工程的依赖版本信息。这意味着在父工程的`dependencyManagement`部分中声明的依赖项版本号将会被子模块继承，但不会自动引入依赖。相反，子模块需要 **显式地声明** 它们需要的依赖项，并且不需要指定版本号，因为它们会从父工程的`dependencyManagement`部分继承。
+
 - 父工程 pom.xml 
 
-​	（父工程统一管理 依赖 的 **GAVP**，在这里P取默认值）
+  通过统一配置管理 依赖 的 **GAVP**（Packaging自动取默认值）
 
 ```xml
 <!-- 使用dependencyManagement标签配置对依赖的管理 -->
@@ -582,21 +584,236 @@ Maven 聚合是指将多个项目组织到一个父级项目中，**通过触发
 
 
 
+# 五、Maven 实战：搭建微服务 Maven 工程架构
+
+### 5.1 项目需求和结构分析
+
+![IMG_6484](https://cdn.jsdelivr.net/gh/boyan-uni/pic-bed/img/ssm-maven-%E9%A1%B9%E7%9B%AE%E9%9C%80%E6%B1%82%E7%BB%93%E6%9E%84%E5%88%86%E6%9E%90%E5%9B%BE.JPG)
+
+其中：
+
+- spring-context会依赖传递 -> core/beans
+- jackson-databind会依赖传递 -> core/annotations
+
+### 5.2 项目搭建和统一搭建
+
+<img src="https://cdn.jsdelivr.net/gh/boyan-uni/pic-bed/img/ssm-maven-%E6%90%AD%E5%BB%BA%E5%BE%AE%E6%9C%8D%E5%8A%A1Maven%E5%B7%A5%E7%A8%8B-%E7%9B%AE%E5%BD%95%E6%9E%B6%E6%9E%84%E6%88%AA%E5%9B%BE.png" style="width:50%;" />
+
+- 其实外圈还有 ssm - project
+
+#### parent - pom.xml(maven-micro-shop)
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <!-- 配置 继承关系 - 父工程 GAVP 坐标 -->
+    <parent>
+        <groupId>com.boyan</groupId>
+        <artifactId>ssm-project</artifactId>
+        <version>1.0-SNAPSHOT</version>
+    </parent>
+    <!-- 配置 当前工程 GAVP 坐标 -->
+    <artifactId>maven-micro-shop</artifactId>
+    <packaging>pom</packaging>
+    <!-- 配置 聚合关系 -->
+    <modules>
+        <module>common-service</module>
+        <module>user-service</module>
+        <module>order-service</module>
+    </modules>
+
+    <!-- 依赖管理 - 统一管理版本号 -->
+    <properties>
+        <spring.version>6.0.6</spring.version>
+        <jackson.version>2.15.0</jackson.version>
+        <shiro.version>1.10.1</shiro.version>
+        <commons.version>2.11.0</commons.version>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+
+    <!-- 依赖管理 - 统一配置子工程依赖项 - 不会自动继承 需要子工程显式声明继承 -->
+    <dependencyManagement>
+        <dependencies>
+            <!-- spring-context 会依赖传递core/beans -->
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-context</artifactId>
+                <version>${spring.version}</version>
+            </dependency>
+
+            <!-- jackson-databind 会依赖传递core/annotations -->
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-databind</artifactId>
+                <version>${jackson.version}</version>
+            </dependency>
+
+            <!-- shiro-core -->
+            <dependency>
+                <groupId>org.apache.shiro</groupId>
+                <artifactId>shiro-core</artifactId>
+                <version>${shiro.version}</version>
+            </dependency>
+
+            <!-- commons-io -->
+            <dependency>
+                <groupId>commons-io</groupId>
+                <artifactId>commons-io</artifactId>
+                <version>${commons.version}</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+    <!-- 统一更新子工程打包插件-->
+    <build>
+        <!-- jdk17 和 war包版本插件不匹配 -->
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-war-plugin</artifactId>
+                <version>3.2.2</version>
+            </plugin>
+        </plugins>
+    </build>
+</project>
+        <!-- A Parent (pom) Maven Project -->
+
+```
 
 
 
+#### child - pom.xml(common-service)
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <!-- 配置 继承关系 - 父工程 GAVP 坐标 -->
+    <parent>
+        <groupId>com.boyan</groupId>
+        <artifactId>maven-micro-shop</artifactId>
+        <version>1.0-SNAPSHOT</version>
+    </parent>
+    <!-- 配置 当前工程 GAVP 坐标 -->
+    <artifactId>common-service</artifactId>
+    <packaging>jar</packaging><!-- 打包方式 默认值：jar 其实可以不写-->
+
+    <properties>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+
+    <!-- 显式声明 - 依赖继承父工程版本-->
+    <dependencies>
+        <!-- commons-io -->
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+        </dependency>
+    </dependencies>
+</project>
+        <!-- A Java SE (jar) Maven Project -->
+```
 
 
 
+#### child - pom.xml(user-service)
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">  
+  <modelVersion>4.0.0</modelVersion>
+
+  <!-- 配置 继承关系 - 父工程 GAVP 坐标 -->  
+  <parent> 
+    <groupId>com.boyan</groupId>  
+    <artifactId>maven-micro-shop</artifactId>  
+    <version>1.0-SNAPSHOT</version> 
+  </parent>  
+  <!-- 配置 当前工程 GAVP 坐标 -->  
+  <artifactId>user-service</artifactId>  
+  <packaging>war</packaging> <!-- 通过插件 JBLJavaToWeb 转换模块 -->
+
+  <properties> 
+    <maven.compiler.source>17</maven.compiler.source>  
+    <maven.compiler.target>17</maven.compiler.target>  
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding> 
+  </properties>
+
+  <!-- 显式声明 - 依赖继承父工程版本-->
+  <dependencies>
+    <!-- spring-context 会依赖传递core/beans -->
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-context</artifactId>
+    </dependency>
+
+    <!-- jackson-databind 会依赖传递core/annotations -->
+    <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-databind</artifactId>
+    </dependency>
+  </dependencies>
+</project>
+        <!-- A Java EE (war) Maven Project -->
+
+```
 
 
 
+####  child - pom.xml(order-service)
 
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
 
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">  
+  <modelVersion>4.0.0</modelVersion>
 
+  <!-- 配置 继承关系 - 父工程 GAVP 坐标 -->
+  <parent> 
+    <groupId>com.boyan</groupId>  
+    <artifactId>maven-micro-shop</artifactId>  
+    <version>1.0-SNAPSHOT</version> 
+  </parent>
+  <!-- 配置 当前工程 GAVP 坐标 -->
+  <artifactId>order-service</artifactId>  
+  <packaging>war</packaging> <!-- 通过插件 JBLJavaToWeb 转换模块 -->
 
+  <properties> 
+    <maven.compiler.source>17</maven.compiler.source>  
+    <maven.compiler.target>17</maven.compiler.target>  
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding> 
+  </properties>
 
+  <!-- 显式声明 - 依赖继承父工程版本-->
+  <dependencies>
+    <!-- spring-context 会依赖传递core/beans -->
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-context</artifactId>
+    </dependency>
 
+    <!-- shiro-core -->
+    <dependency>
+      <groupId>org.apache.shiro</groupId>
+      <artifactId>shiro-core</artifactId>
+    </dependency>
+  </dependencies>
+</project>
+        <!-- A Java EE (war) Maven Project -->
+
+```
 
 
 

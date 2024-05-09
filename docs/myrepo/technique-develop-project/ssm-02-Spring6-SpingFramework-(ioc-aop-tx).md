@@ -2,7 +2,7 @@
 
 > [!TIP]
 >
-> **Spring 核心点掌握总结**
+> **Spring 核心点&掌握总结**
 >
 > 1. spring框架理解：spring家族和spring framework框架
 > 2. spring核心功能：ioc/di , aop , tx
@@ -16,18 +16,9 @@
 
 
 
-# 一、技术体系结构 引入
+# 一、技术体系结构
 
-为什么学ssm、框架有什么特点
-
-- 单体架构（all-in-one）
-
-  - **一个项目，一个工程，导出为一个war包，在一个Tomcat上运行** 的项目
-  - 主要应用技术框架：Spring , SpringMVC , Mybatis
-
-  
-
-- 分布式架构，项目主要应用技术框架：
+## 1.1 All-in-one & 分布式 项目架构
 
 
 
@@ -42,28 +33,6 @@
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# 二、SpringFramework 介绍
-
-为什么学spring
 
 
 
