@@ -2619,26 +2619,477 @@ public class LogAspect {...}
 
 # 五、Spring TX 声明式事务管理
 
+## 5.1 声明式事务管理概念
+
+### 5.1.1 编程式事务（了解）
+
+编程式事务是指手动编写程序来管理事务，即通过编写代码的方式直接控制事务的提交和回滚。在 Java 中，通常使用事务管理器(如 Spring 中的 PlatformTransactionManager)来实现编程式事务。尽量自动化并减少冗余，所以现在尽量使用声明式事务。
+
+```java
+Connection conn = ...;
+  
+try {
+    // 开启事务：关闭事务的自动提交
+    conn.setAutoCommit(false);
+    // 核心操作
+    // 业务代码
+    // 提交事务
+    conn.commit();
+  
+}catch(Exception e){
+  
+    // 回滚事务
+    conn.rollBack();
+  
+}finally{
+  
+    // 释放数据库连接
+    conn.close();
+} 
+// 编程式的实现方式存在缺陷：
+// - 细节没有被屏蔽：具体操作过程中，所有细节都需要程序员自己来完成，比较繁琐。
+// - 代码复用性不高：如果没有有效抽取出来，每次实现功能都需要自己编写代码，代码就没有得到复用。
+```
 
 
 
+### 5.1.2 声明式事务
 
-# 总结、Spring 常用注解 @Annotation
+声明式事务是指**使用注解或 XML 配置的方式来控制事务的提交和回滚**。
 
-### 1. 配置相关注解
+开发者只需要添加配置即可，具体事务的实现由第三方框架实现，避免我们直接进行事务操作！
+
+使用声明式事务可以将事务的控制和业务逻辑分离开来，提高代码的可读性和可维护性。
+
+区别：
+
+- 编程式事务需要手动编写代码来管理事务
+- 而声明式事务可以通过配置文件或注解来控制事务。
+
+### 5.1.3 Spring TX 事务管理器
+
+<img src="https://cdn.jsdelivr.net/gh/boyan-uni/pic-bed/img/ssm-spring-tx-%E4%BA%8B%E5%8A%A1%E7%AE%A1%E7%90%86%E5%99%A8%E5%92%8C%E5%8E%9F%E7%90%86%E6%A1%86%E6%9E%B6%E5%9B%BE.png" alt="image-20240521235943106" style="width:80%;" />
+
+#### 1）相关依赖导入（如图）
+
+- spring-tx: 包含声明式事务实现的基本规范（事务管理器规范接口和事务增强等等）
+- spring-jdbc: 包含DataSource方式事务管理器实现类DataSourceTransactionManager
+- spring-orm: 包含其他持久层框架的事务管理器实现类例如：Hibernate/Jpa等
+
+#### 2）事务管理器接口
+
+<img src="https://cdn.jsdelivr.net/gh/boyan-uni/pic-bed/img/ssm-spring-tx-%E4%BA%8B%E5%8A%A1%E7%AE%A1%E7%90%86%E5%99%A8%E6%8E%A5%E5%8F%A3%E5%B1%82%E6%AC%A1%E5%9B%BE.png" alt="image-20240522001619966" style="width:60%;" />
+
+我们现在要使用的事务管理器是org.springframework.jdbc.datasource.DataSourceTransactionManager，将来整合 JDBC方式、JdbcTemplate方式、Mybatis方式的事务实现！
+
+DataSourceTransactionManager类中的主要方法：
+
+- doBegin()：开启事务
+- doSuspend()：挂起事务
+- doResume()：恢复挂起的事务
+- doCommit()：提交事务
+- doRollback()：回滚事务
+
+
+
+## 5.2 基于注解的声明式事务（实验）
+
+### 5.2.1 项目基础框架搭建
+
+项目位置：spring-tx-annotation-12
+
+基本项目结构（JavaConfig，StudentDao，StudentService，jdbc.properties，SpringTxTest）
+
+![image-20240522112024093](https://cdn.jsdelivr.net/gh/boyan-uni/pic-bed/img/ssm-spring-tx-%E9%A1%B9%E7%9B%AE%E5%87%86%E5%A4%87idea%E6%88%AA%E5%9B%BE.png)
+
+测试项目搭建结果：单元测试通过，数据库表已更新
+
+<img src="https://cdn.jsdelivr.net/gh/boyan-uni/pic-bed/img/ssm-spring-tx-%E9%A1%B9%E7%9B%AE%E6%90%AD%E5%BB%BA-%E5%8D%95%E5%85%83%E6%B5%8B%E8%AF%95%E7%BB%93%E6%9E%9C.png" alt="image-20240522112115843" style="width:99%;" />
+
+<img src="https://cdn.jsdelivr.net/gh/boyan-uni/pic-bed/img/ssm-spring-tx-%E9%A1%B9%E7%9B%AE%E6%90%AD%E5%BB%BA%E6%B5%8B%E8%AF%95-%E6%95%B0%E6%8D%AE%E5%BA%93%E8%A1%A8%E6%9B%B4%E6%96%B0%E7%BB%93%E6%9E%9C.png" alt="image-20240522112326848" style="width:60%;" />
+
+### 5.2.2 基本事务控制
+
+#### 1）配置事务管理器
+
+（一）**基本步骤：**
+
+1. **选择对应事务管理器实现，并加入 IoC 容器中**：
+
+   spring 声明式事务给我们提供了对各管理器实现，需要哪种就直接加入到 IoC 容器中即可！eg. 
+
+   - Mybatis jdbcTemplate -> DataSourceTM(全称：**DataSourceTransactionManager**());
+   - Hibernate -> HibernateTM(全称：**HibernateTransactionManager**());
+
+2. 只需要使用注解指定哪些方法需要添加事务即可（声明式事务管理方式）
+
+（二）**具体配置：**
+
+- JavaConfig.class 配置类中：
+
+  1. 类上添加：**@EnableTransactionManagement**，开启事务控制；
+
+  2. 类中添加 **@Bean public TransactionManager transactionManager(DataSource dataSource)** 成员方法：
+
+```java
+/**
+ * 装配事务管理实现对象
+ * @param dataSource
+ * @return
+ */
+@Bean
+public TransactionManager transactionManager(DataSource dataSource){
+    // 拆分步骤代码
+    // 内部要进行事务的操作，基于连接池，选择具体持久层框架对应的事务管理器，并放入 IoC 容器中！
+    DataSourceTransactionManager dataSourceTransactionManager = new DataSourceTransactionManager();
+    // 1 - 需要连接池对象
+    dataSourceTransactionManager.setDataSource(dataSource);
+    // 2 - 放入 IoC 容器
+    return dataSourceTransactionManager;
+  	// 等价于⬇️
+    return new DataSourceTransactionManager(dataSource);
+}
+
+```
+
+- 在需要配置事务的方法上 配置 **@Transactional 声明事务注解**
+
+​	总结 - @Transactional 具体配置位置：[【spring-tx】@Transactional 配置位置，什么样的方法需要配置？](https://blog.csdn.net/weixin_44357602/article/details/139126896)
+
+​	**StudentSerivce.java**
+
+```java
+/**
+ * 添加事务：@Transactional
+ * 位置：方法 / 类 上
+ *  - 方法：当前方法有事务
+ *  -  类 ：当前类下的所有方法都有事务
+ */
+@Transactional
+public void changeInfo1(){
+    studentDao.updateAgeById(100,1);
+    System.out.println("-----------");
+    studentDao.updateNameById("test1",1); // 正常执行版本
+}// 执行结果: 正常更新数据
+
+@Transactional
+public void changeInfo2() {
+    studentDao.updateAgeById(88,1);									// step1
+    int i = 1/0;                                    // 一定报错的语句
+    System.out.println("-----------");
+    studentDao.updateNameById("test2",1);						// step2
+}// 执行结果应该是：执行失败完全回滚，step1执行后回滚，最后结果不变
+```
+
+​	测试代码：**SpringTxTest.java**
+
+```java
+@Test
+public void testTxRollback()
+{
+    studentService.changeInfo2();    // 方法中间会报一个错，应该回滚事务
+}
+```
+
+​	测试结果
+
+<img src="https://cdn.jsdelivr.net/gh/boyan-uni/pic-bed/img/ssm-spring-tx-%E5%9F%BA%E7%A1%80%E4%BA%8B%E5%8A%A1%E9%85%8D%E7%BD%AE-%E6%B5%8B%E8%AF%95%E7%BB%93%E6%9E%9C%E5%9B%BE.png" alt="image-20240522140426344" style="width:99%;" />
+
+​	数据库表：两个属性均为更新，基本事务配置成功✅
+
+<img src="https://cdn.jsdelivr.net/gh/boyan-uni/pic-bed/img/ssm-spring-tx-%E5%9F%BA%E6%9C%AC%E4%BA%8B%E5%8A%A1%E9%85%8D%E7%BD%AE%E6%B5%8B%E8%AF%95%E5%90%8E-%E6%95%B0%E6%8D%AE%E5%BA%93%E8%A1%A8%E9%A1%B9%E7%8A%B6%E6%80%81%E6%88%AA%E5%9B%BE.png" alt="image-20240522140550443" style="width:70%;" />
+
+#### 2）@Transaction 事务属性
+
+```java
+/**
+ * 添加事务：@Transactional
+ * 位置：方法 / 类 上
+ *  - 方法：当前方法有事务
+ *  -  类 ：当前类下的所有方法都有事务
+ *  ⚠️ 如果类和方法上都设置了 @Transactional 注解，方法上的会完全覆盖类上的 @Transactional 注解
+ *
+ *  1. 只读模式 read-only
+ *     @Transactional(readOnly = true), 默认 false
+ *     只读模式可以提升查询事务的效率！推荐事务中只有查询代码，使用只读模式！
+ *     适用：平时一般在类上加 @Transactional，在查询只读的方法上加 @Transactional(readOnly = true)覆盖设定，提高效率；
+ *
+ *  2. 超时时间 timeout
+ *     @Transactional(timeout = 3), 默认 -1 (永远不超时), 单位：秒
+ *     超时回滚，释放资源，释放异常
+ *
+ *  3. 指定异常回滚 > 指定异常不回滚 rollbackfor noRollbackFor
+ *     默认情况下，指定发生运行时异常，事务才会回滚：
+ *      - rollbackFor = 指定哪些异常才会回滚,默认是 RuntimeException and Error 异常方可回滚!
+ *                      我们可以指定 Exception 异常来控制所有异常都回滚!
+ *                      eg. @Transactional(rollbackFor = Exception.class)
+ *      - noRollbackFor = 回滚异常范围内，指定哪些异常不会回滚。默认没有指定，如果指定,应该在rollbackFor的范围内!
+ *        eg. @Transactional(rollbackFor = Exception.class,noRollbackFor = FileNotFoundException.class)
+ *        ⚠️其中 Exception.class 范围 应大于 FileNotFoundException.class！
+ *
+ *  4. 隔离级别 Isolation
+ *      @Transactional(isolation = Isolation.READ_COMMITTED)
+ *      isolation = 设置事务的隔离级别, mysql默认是repeatable read
+ *      1 - READ_UNCOMMITED, 读未提交（容易脏读，一般不用）
+ *      2 - READ_COMMITED, 读已提交（*最推荐设置第二个级别）
+ *      3 - REPEATABLE_READ, 可重复读（mysql默认的隔离级别）
+ *      4 - SERIALIZABLE, 可串行化（最高的隔离级别，完全禁止并发）
+ *      ⚠️隔离级别越高，隔离性越强，性能越弱!
+ *
+ *  5. 传播特性 propagation
+ *      @Transactional(propagation = Propagation.REQUIRES_NEW)
+ *      在被调用的子方法中设置传播行为，代表如何处理调用的事务！ 是加入，还是新事务等！
+ *      - REQUIRED, 默认值：如果父方法有事务，就加入，如果没有就新建自己独立！(推荐使用)
+ *      - REQUIRES_NEW, 不管父方法是否有事务，我都新建事务，都是独立的！
+ *      ⚠️推荐使用默认值，因为既然调用了，最终应该是同一个事务。
+ */
+```
+
+再详细解释一下
+
+ **隔离级别 - Isolation** 
+
+数据库事务的隔离级别是指在多个事务并发执行时，数据库系统为了保证数据一致性所遵循的规定。常见的隔离级别包括：
+
+1. 读未提交（Read Uncommitted）：事务可以读取未被提交的数据，容易产生脏读、不可重复读和幻读等问题。实现简单但不太安全，一般不用。
+2. 读已提交（Read Committed）：事务只能读取已经提交的数据，可以避免脏读问题，但可能引发不可重复读和幻读。
+3. 可重复读（Repeatable Read）：在一个事务中，相同的查询将返回相同的结果集，不管其他事务对数据做了什么修改。可以避免脏读和不可重复读，但仍有幻读的问题。
+4. 串行化（Serializable）：最高的隔离级别，完全禁止了并发，只允许一个事务执行完毕之后才能执行另一个事务。可以避免以上所有问题，但效率较低，不适用于高并发场景。
+
+**传播特性 - propagation**
+
+**⚠️注意：**
+
+  在同一个类中，对于@Transactional注解的方法调用，事务传播行为不会生效。这是因为Spring框架中使用代理模式实现了事务机制，在同一个类中的方法调用并不经过代理，而是通过对象的方法调用，因此@Transactional注解的设置不会被代理捕获，也就不会产生任何事务传播行为的效果。
+
+其他传播行为值（了解）
+1. Propagation.REQUIRED：如果当前存在事务，则加入当前事务，否则创建一个新事务。
+2. Propagation.REQUIRES_NEW：创建一个新事务，并在新事务中执行。如果当前存在事务，则挂起当前事务，即使新事务抛出异常，也不会影响当前事务。
+3. Propagation.NESTED：如果当前存在事务，则在该事务中嵌套一个新事务，如果没有事务，则与Propagation.REQUIRED一样。
+4. Propagation.SUPPORTS：如果当前存在事务，则加入该事务，否则以非事务方式执行。
+5. Propagation.NOT_SUPPORTED：以非事务方式执行，如果当前存在事务，挂起该事务。
+6. Propagation.MANDATORY：必须在一个已有的事务中执行，否则抛出异常。
+7. Propagation.NEVER：必须在没有事务的情况下执行，否则抛出异常。
+
+##### 实验代码
+
+这里只展示和事务相关的实验部分，底层代码和其他类-> spring-tx-annotation-12 模块
+
+**StudentService.java**
+
+```java
+package com.boyan.service;
+
+import com.boyan.dao.StudentDao;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+
+@Service
+public class StudentService {
+
+    @Autowired
+    private StudentDao studentDao;
+
+    /**
+     * 事务：正常执行方法
+     * 预期执行结果: 正常更新数据
+     */
+    @Transactional
+    public void changeInfo1(){
+        studentDao.updateAgeById(100,1);
+        System.out.println("-----------");
+        studentDao.updateNameById("test1",1); // 正常执行版本
+    }
+
+    /**
+     * 事务：执行失败回滚方法
+     * 预期执行结果：执行失败完全回滚，step1执行后回滚，最后结果不变
+     */
+    @Transactional
+    public void changeInfo2() {
+        studentDao.updateAgeById(88,1);            // step1
+        int i = 1/0;                                              // 一定报错的语句
+        System.out.println("-----------");
+        studentDao.updateNameById("test2",1);               // step2
+    }
+
+    /**
+     * 事务：超时回滚
+     * 预期执行结果：执行失败完全回滚，step1执行后回滚，最后结果不变
+     */
+    @Transactional(timeout = 3)
+    public void changeInfo3() {
+        studentDao.updateAgeById(88,1);            // step1
+        try {
+            Thread.sleep(5000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        System.out.println("-----------");
+        studentDao.updateNameById("test3",1);               // step2
+    }
+
+    /**
+     * 事务：事务异常指定问题 + 隔离级别2st
+     * 预期执行结果：step1完成执行，step2没有完成执行，事务不会回滚，因为这个异常不在rollbackFor的默认范围内！
+     */
+    @Transactional(rollbackFor = Exception.class,noRollbackFor = FileNotFoundException.class, isolation= Isolation.READ_COMMITTED)
+    public void changeInfo4() throws FileNotFoundException {
+        studentDao.updateAgeById(88,1);                         // step1
+        //主动抛出一个检查异常,测试! 发现不会回滚,因为不在rollbackFor的默认范围内!
+        new FileInputStream("xxxx");
+        studentDao.updateNameById("test4",1);                  // step2
+    }
+
+    /**
+     * 声明两个独立修改数据库的事务业务方法
+     */
+    @Transactional(propagation = Propagation.REQUIRED)
+    public void changeAge(){
+        studentDao.updateAgeById(99,1);
+    }
+
+    @Transactional(propagation = Propagation.REQUIRED)
+    public void changeName(){
+        studentDao.updateNameById("test5",1);
+        int i = 1/0;
+    }
+}
+```
+
+**TopService.java**
+
+```java
+package com.boyan.service;
+
+import com.boyan.dao.StudentDao;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+/**
+ * 整合业务方法
+ */
+@Service
+public class TopService {
+
+    @Autowired
+    private StudentService studentService;
+
+    @Transactional
+    public void  topService(){
+        studentService.changeAge();
+        studentService.changeName();
+    }
+}
+```
+
+**SpringTxTest.java**
+
+```java
+package com.boyan.test;
+
+import com.boyan.service.StudentService;
+import com.boyan.service.TopService;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
+
+import java.io.FileNotFoundException;
+
+@SpringJUnitConfig(classes = {com.boyan.config.JavaConfig.class})
+public class SpringTxTest {
+    @Autowired
+    private StudentService studentService;
+
+    /**
+     * 测试 - 事务：正常执行方法
+     */
+    @Test
+    public void testTxSuccess()
+    {
+        studentService.changeInfo1();    // update id=1 的数据项的 name，age属性值；
+    }
+
+    /**
+     * 测试 - 事务：执行失败回滚方法
+     */
+    @Test
+    public void testTxRollback()
+    {
+        studentService.changeInfo2();    // 方法中间会报一个错，应该执行失败并回滚事务
+    }
+
+    /**
+     * 测试 - 事务：超时回滚
+     */
+    @Test
+    public void testTxTimeout()
+    {
+        studentService.changeInfo3();
+    }
+
+    /**
+     * 测试 - 事务：超时回滚
+     */
+    @Test
+    public void testTxRollbackFor() throws FileNotFoundException {
+        studentService.changeInfo4();
+    }
+
+    /**
+     * 测试 - 事务：传播行为
+     */
+    @Autowired
+    private TopService topService;
+
+    @Test
+    public void  testTxPropagation() throws FileNotFoundException {
+        topService.topService();
+        // 整合成一个事务，执行失败回滚
+    }
+
+}
+```
+
+✅ 测试结果均符合预期。
+
+
+
+# 总结
+
+## 1. Spring 核心点掌握
+
+| 核心点          | 掌握目标                                           |
+| --------------- | -------------------------------------------------- |
+| spring框架理解  | spring家族和spring framework框架                   |
+| spring核心功能  | ioc/di , aop , tx                                  |
+| spring ioc / di | 组件管理、ioc容器、ioc/di , 三种配置方式           |
+| spring aop      | aop和aop框架和代理技术、基于注解的aop配置          |
+| spring tx       | 声明式和编程式事务、动态事务管理器、事务注解、属性 |
+
+## 2. Spring 常用注解 @Annotation
+
+##### 1. 配置相关注解
 
 - **`@Configuration`**：标记一个类为 Spring 的配置类，相当于传统的 XML 配置文件。
 - **`@ComponentScan`**：自动扫描和注册使用 `@Component`、`@Service`、`@Repository` 和 `@Controller` 注解的 bean。
 - **`@Bean`**：在配置类中定义一个方法，创建并返回一个 Spring 容器管理的 bean。
 
-### 2. 组件相关注解
+##### 2. 组件相关注解
 
 - **`@Component`**：通用的 Spring 组件注解，标识一个类为 Spring 管理的组件。
 - **`@Service`**：标识一个服务层组件，通常用于业务逻辑层。
 - **`@Repository`**：标识数据访问层组件，通常用于数据访问逻辑层，并支持自动翻译数据库异常。
 - **`@Controller`**：标识一个控制器组件，通常用于 Web 层，处理请求和返回视图。
 
-### 3. 依赖注入相关注解
+##### 3. 依赖注入相关注解
 
 - **`@Autowired`**：自动注入依赖的 bean，按类型注入。
 - **`@Qualifier`**：与 `@Autowired` 结合使用，指定注入的具体 bean，按名称注入。
@@ -2646,16 +3097,16 @@ public class LogAspect {...}
 - **`@Resource`**（`javax.annotation`）：按名称注入 bean。
 - **`@Inject`**（`javax.inject`）：按类型注入 bean，与 `@Autowired` 类似。
 
-### 4. 生命周期相关注解
+##### 4. 生命周期相关注解
 
 - **`@PostConstruct`**（`javax.annotation`）：标记一个方法为初始化方法，在 bean 构造完成并依赖注入之后执行。
 - **`@PreDestroy`**（`javax.annotation`）：标记一个方法为销毁方法，在 Spring 容器销毁 bean 之前执行。
 
-### 5. 事务管理相关注解
+##### 5. 事务管理相关注解
 
 - **`@Transactional`**：声明事务管理，应用于类或方法上，标识方法需要事务支持。
 
-### 6. AOP 相关注解
+##### 6. AOP 相关注解
 
 - **`@Aspect`**：声明一个类为切面类。
 - **`@Before`**：声明前置通知，在目标方法执行之前执行。
@@ -2664,7 +3115,7 @@ public class LogAspect {...}
 - **`@AfterThrowing`**：声明异常通知，在目标方法抛出异常时执行。
 - **`@Around`**：声明环绕通知，可以自定义目标方法的执行。
 
-### 7. Web 相关注解
+##### 7. Web 相关注解 - （SpringMVC见）
 
 - **`@RequestMapping`**：映射 HTTP 请求到处理方法上，可以用于类和方法上。
 - **`@GetMapping`**：映射 GET 请求到处理方法上。
@@ -2678,7 +3129,7 @@ public class LogAspect {...}
 - **`@ResponseBody`**：将方法的返回值绑定到 HTTP 响应体。
 - **`@RestController`**：组合注解，标识一个类为控制器，并且每个方法都返回对象而不是视图，相当于 `@Controller` 和 `@ResponseBody` 的组合。
 
-### 8. 配置属性相关注解
+##### 8. 配置属性相关注解
 
 - **`@Value`**：注入外部配置属性值。
 - **`@PropertySource`**：指定属性文件的位置。
