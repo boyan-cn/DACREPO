@@ -1,7 +1,11 @@
-# Mybatis-从入门到速成（实战篇）
+# Mybatis：“quickstart-demo”（实战篇）
 
-- 参考文档：[Mybatis教程-实战看这一篇就够了 ](https://www.cnblogs.com/diffx/p/10611082.html)
-- github仓库链接(by BOYAN)：[mybatis-demo](https://github.com/boyan-uni/mybatis-demo)
+> [!NOTE]
+>
+> - 跟练参考文档：[Mybatis教程-实战看这一篇就够了 ](https://www.cnblogs.com/diffx/p/10611082.html)
+> - github仓库链接(create by BOYAN)：[mybatis-demo](https://github.com/boyan-uni/mybatis-demo)
+
+
 
 ##  一. 新建项目JDBC测试
 
@@ -108,7 +112,7 @@ public class JDBCTest {
 
 <img src="https://cdn.jsdelivr.net/gh/boyan-uni/pic-bed/img/mybatis-JDBCTest-Result.png" style="zoom:50%;" />
 
-------
+
 
 ## 二. Quick Start
 
@@ -400,7 +404,9 @@ log4j.appender.A1.layout.ConversionPattern=%-d{yyyy-MM-dd HH:mm:ss,SSS} [%t] [%c
 
 ### 7）已调整目录结构（0中图是更新后的catalog截图）
 
-------
+
+
+
 
 ## 三. 添加完整的CRUD操作（User.java）
 
@@ -736,7 +742,9 @@ public class UserDaoTest {
 
 ![image-20240406172616668](https://cdn.jsdelivr.net/gh/boyan-uni/pic-bed/img/mybatis-UserDaoTest-data-tb_user.png)
 
-------
+
+
+
 
 ## 四. mybatis的“接口动态代理”改造CRUD
 
@@ -839,7 +847,7 @@ public interface UserMapper {
     <select id="queryUserAll" resultType="com.boyan.mybatis.pojo.User">
         select * from tb_user
     </select>
-    <!-- 新增的Statement
+    <!-- 新增的statement
        id：唯一标识，随便写，在同一个命名空间下保持唯一，使用动态代理之后要求和方法名保持一致
        parameterType：参数的类型，使用动态代理之后和方法的参数类型一致
        useGeneratedKeys:开启主键回写
@@ -1021,7 +1029,7 @@ public class UserMapperTest {
 
 
 
-## 五. 常见问题
+## 五. 发现问题
 
 ### QA：数据库字段名和实体类属性名不一致的问题
 
