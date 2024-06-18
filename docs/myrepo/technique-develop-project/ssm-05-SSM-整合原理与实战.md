@@ -89,21 +89,397 @@ public class MyWebAppInitializer extends AbstractAnnotationConfigDispatcherServl
 
 
 
-## 三、《任务列表案例》前端程序搭建和运行
+## 三、《任务列表案例》前后端分离项目 SSM框架
+
+### 3.1 需求分析｜体系结构设计
+
+##### 前端预览图
+
+<img src="https://cdn.jsdelivr.net/gh/boyan-uni/pic-bed/img/ssm-%E4%BB%BB%E5%8A%A1%E5%88%97%E8%A1%A8%E6%A1%88%E4%BE%8B-%E5%89%8D%E7%AB%AF%E9%A2%84%E8%A7%88%E5%9B%BE.png" alt="截屏2024-06-14 23.35.12" style="width:50%;" />
+
+##### 后端体系结构设计
+
+1. **Controller 表述层**：只负责 1. 简化**接收请求** 2. 正常调用Service层逻辑 3. 简化**发送响应**；
+2. **Service 业务逻辑层**：1. 分页装配返回的完整list 2. 把 mapper 返回结果封装到 R 结果类对象中 3. 正常调用Mapper 层逻辑；
+3. **Mapper 持久层**：Mapper 接口类 --- Mapper.xml 支持自定义 sql 语句，直接与数据库交互；
 
 
 
+前端接口文档 ｜需求分析 - 功能点
+
+###### 1. 学习计划分页查询
+
+- 接口文档要求
+
+```Java
+/* 
+需求说明
+    查询全部数据页数据
+请求uri
+    schedule/{pageSize}/{currentPage}
+请求方式 
+    get   
+响应的json
+    {
+        "code":200,
+        "flag":true,
+        "data":{
+            //本页数据
+            data:
+            [
+            {id:1,title:'学习java',completed:true},
+            {id:2,title:'学习html',completed:true},
+            {id:3,title:'学习css',completed:true},
+            {id:4,title:'学习js',completed:true},
+            {id:5,title:'学习vue',completed:true}
+            ], 
+            //分页参数
+            pageSize:5, // 每页数据条数 页大小
+            total:0 ,   // 总记录数
+            currentPage:1 // 当前页码
+        }
+    }
+*/
+```
+###### 2. 学习计划删除
+
+```Java
+/* 
+需求说明
+    根据id删除日程
+请求uri
+    schedule/{id}
+请求方式 
+    delete
+响应的json
+    {
+        "code":200,
+        "flag":true,
+        "data":null
+    }
+*/
+```
+###### 3. 学习计划保存
+
+```Java
+/* 
+需求说明
+    增加日程
+请求uri
+    schedule
+请求方式 
+    post
+请求体中的JSON
+    {
+        title: '',
+        completed: false
+    }
+响应的json
+    {
+        "code":200,
+        "flag":true,
+        "data":null
+    }
+*/
+```
+###### 4. 学习计划修改
+
+```Java
+/* 
+需求说明
+    根据id修改数据
+请求uri
+    schedule
+请求方式 
+    put
+请求体中的JSON
+    {
+        id: 1,
+        title: '',
+        completed: false
+    }
+响应的json
+    {
+        "code":200,
+        "flag":true,
+        "data":null
+    }
+*/
+```
+
+##### @Controller 层实现
+
+```java
+package com.boyan.controller;
+
+import com.boyan.pojo.Schedule;
+import com.boyan.service.ScheduleService;
+import com.boyan.pojo.R;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
+
+/**
+ * 控制层只负责两件事：接收参数 ｜ 响应结果
+ */
+@CrossOrigin
+@RestController // == @Controller + @ResponseBody
+@RequestMapping("schedule")
+@Slf4j
+public class ScheduleController {   // 在后端 @Controller层 设置允许非同源访问 restful服务
+
+    @Autowired
+    private ScheduleService scheduleService;
+
+    @GetMapping("/{pageSize}/{currentPage}")
+    public R page(@PathVariable(name = "pageSize") Integer pageSize, @PathVariable(name = "currentPage") Integer currentPage)
+    {
+        R r = scheduleService.queryPage(pageSize, currentPage);
+        // sl4fj
+        // log.info("响应结果：{}",r);
+        return r;
+    }
+
+    @GetMapping
+    public R listAll()
+    {
+        R r = scheduleService.list();
+        // sl4fj
+        // log.info("响应结果：{}",r);
+        return r;
+    }
+
+    @PostMapping
+    public R insert(@Validated @RequestBody Schedule schedule, BindingResult result)
+    {
+        if (result.hasErrors())
+        {
+            return R.fail("参数为空，不能保存");
+        }
+        R r = scheduleService.insert(schedule);
+        // sl4fj
+        // log.info("响应结果：{}",r);
+        return r;
+    }
+
+    @DeleteMapping("{id}")
+    public R deleteById(@PathVariable Integer id)
+    {
+        R r = scheduleService.deleteById(id);
+        // sl4fj
+        // log.info("响应结果：{}",r);
+        return r;
+    }
+
+    @PutMapping
+    public R update(@Validated @RequestBody Schedule schedule, BindingResult result)
+    {
+        if (result.hasErrors())
+        {
+            return R.fail("参数为空，不能更新");
+        }
+        R r = scheduleService.update(schedule);
+        // sl4fj
+        // log.info("响应结果：{}",r);
+        return r;
+    }
+}
+
+```
+
+##### @Service 层实现
+
+```java
+package com.boyan.service;
+
+import com.boyan.mapper.ScheduleMapper;
+import com.boyan.pojo.Schedule;
+import com.boyan.pojo.PageBean;
+import com.boyan.pojo.R;
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
+import jakarta.annotation.Resource;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+
+@Slf4j
+@Service
+public class ScheduleServiceImpl implements ScheduleService{
+
+    @Resource // == @Autowired + @Qualifier
+    private ScheduleMapper scheduleMapper;
+
+    /**
+     * 分页查询，具体步骤：分页、查询、分页数据装配
+     *
+     * @param pageSize int 每页显示条数
+     * @param currentPage int 当前页数
+     * @return
+     */
+    @Override
+    public R queryPage(int pageSize, int currentPage) {
+        //1.设置分页参数
+        PageHelper.startPage(currentPage,pageSize); // sql 语句后自动追加 limit
+        //2.数据库查询
+        List<Schedule> scheduleList = scheduleMapper.list();
+        //3.结果获取
+        PageInfo<Schedule> pageInfo = new PageInfo<>(scheduleList);
+        //4.pageBean封装
+        PageBean<Schedule> pageBean = new PageBean<>(currentPage,pageSize,pageInfo.getTotal(),pageInfo.getList());
+        log.info("分页查询结果:{}",pageBean);
+
+        // 返回结果
+        R r = R.ok(pageBean);
+        return r;
+    }
+
+    @Override
+    public R list() {
+        R r = R.ok(scheduleMapper.list());
+        return r;
+    }
+
+    /**
+     * @param schedule
+     */
+    @Override
+    public R insert(Schedule schedule) {
+        int response = scheduleMapper.insert(schedule);
+        if (response == 1) {
+            return R.ok(null);
+        } else {
+            return R.fail(null);
+        }
+
+    }
+
+    /**
+     * @param id
+     */
+    @Override
+    public R deleteById(Integer id) {
+        int response = scheduleMapper.deleteById(id);
+        if (response == 1) {
+            return R.ok(null);
+        } else {
+            return R.fail(null);
+        }
+    }
+
+    /**
+     * @param schedule
+     */
+    @Override
+    public R update(Schedule schedule) {
+        int response = scheduleMapper.update(schedule);
+        if (response == 1) {
+            return R.ok(null);
+        } else {
+            return R.fail(null);
+        }
+    }
+}
+```
+
+##### @Mapper 接口
+
+```java
+package com.boyan.mapper;
+
+import com.boyan.pojo.Schedule;
+
+import java.util.List;
+
+/**
+ * Mapper 接口
+ * @author boyan
+ */
+
+public interface ScheduleMapper {
+
+    /**
+     * Retrieve a list of all schedules.
+     *
+     * @return List of Schedule objects.
+     */
+    List<Schedule> list();
+
+    /**
+     * Insert a new schedule.
+     *
+     * @param schedule Schedule object to be inserted.
+     * @return int 1 if insert was successful, 0 otherwise.
+     */
+    int insert(Schedule schedule);
+
+    /**
+     * Delete a schedule by its ID.
+     *
+     * @param id ID of the schedule to be deleted.
+     * @return int 1 if delete was successful, 0 otherwise.
+     */
+    int deleteById(Integer id);
+
+    /**
+     * Update an existing schedule.
+     *
+     * @param schedule Schedule object with updated details.
+     * @return int 1 if update was successful, 0 otherwise.
+     */
+    int update(Schedule schedule);
+}
+```
 
 
-## 四、《任务列表案例》后端程序实现和测试
+
+### 3.2 前端程序部署
+
+下载前端代码，通过 VScode 打开:
+
+```cmd
+sudo npm install  // 自动下载安装依赖
+sudo npm run dev  // 运行测试，得到 url 地址
+```
+
+Local：http://localhost:5173/ , 暂时保持运行状态，然后部署后端项目，通过这个地址访问页面，前端中已经连接后端url；
+
+<img src="https://cdn.jsdelivr.net/gh/boyan-uni/pic-bed/img/ssm-integration-todolist-frontend.png" alt="image-20240617153812145" style="width:50%;" />
 
 
 
+### 3.3 前后端联调｜跨域问题解决 @CrossOrigin
+
+Html 调试，打开 F12 开发者模式；
+
+<img src="https://cdn.jsdelivr.net/gh/boyan-uni/pic-bed/img/ssm-integration-crossorigin.png" alt="image-20240618144627731" style="width:50%;" />
+
+发现问题：浏览器同源策略安全机制 导致；
+
+解决设置：在后台设置可以跨域访问（允许非同源访问）：
+
+​		    在后端，在@Controller上：添加 **@CrossOrigin** 在 XxxController上（允许位置：接口&方法上）允许跨域访问；
 
 
 
+### 3.4 前后端分离项目 架构图
 
-## 五、SSM 依赖总结
+##### 前后端各自部署连通逻辑
+
+<img src="https://cdn.jsdelivr.net/gh/boyan-uni/pic-bed/img/ssm-integration-%E5%89%8D%E5%90%8E%E7%AB%AF%E8%81%94%E8%B0%83%E7%BB%93%E6%9E%84.png" alt="image-20240618162700753" style="width:80%;" />
+
+
+
+##### 后端架构详解：模块 ssm-integration-todolist-02
+
+![image-20240618144400332](https://cdn.jsdelivr.net/gh/boyan-uni/pic-bed/img/ssm-integration-todolist-src.png)
+
+
+
+## 六、SSM 依赖总结
 
 ### pom.xml
 
@@ -322,6 +698,8 @@ public class MyWebAppInitializer extends AbstractAnnotationConfigDispatcherServl
 
 </project>
 ```
+
+
 
 ### logback.xml
 
