@@ -1487,6 +1487,15 @@ public void testQuick8(){
 
 > 点击跳转官方文档描述：[MyBatisX 插件](https://baomidou.com/guides/mybatis-x/)
 >
-> 具体详情操作请参考：MyBatis 部分的 MyBatisX 插件部分操作；
+> 具体基本操作步骤详情，请参考：MyBatis 部分的 MyBatisX 插件部分操作；
 
-【template】选择：MyBatis3
+- 更新：【annotation & template】选择：myBatis-plus3
+
+> [!TIP]
+>
+> 快速开发小Tip！💡：编写自定义方法时，按照 MyBatisX 提示命名方法，标红 -> 右键方法名，按照 MyBatisX 自动生成！
+>
+> 然后就会惊喜的发现，sql语句、方法补全、注解补全 ... 全部给你写好啦！！！当然，记得检查。
+>
+> 官方文档都有详细的说明，要去看哦！
+
