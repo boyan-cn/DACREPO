@@ -593,6 +593,10 @@ public class MvcConfig implements WebMvcConfigurer {
 
 ##### ⚠️ Druid 与 Springboot3 不完全适配问题！
 
+> [!WARNING]
+>
+> 最新版本的druid-spring-boot-3-starter已经兼容！使用1.2.20 以上的版本就不需要配置这个文件了！
+
 通过源码分析，druid-spring-boot-3-starter 目前最新版本是1.2.18，虽然适配了 SpringBoot3，但缺少自动装配的配置文件
 
 需要手动在resources目录下创建META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports
