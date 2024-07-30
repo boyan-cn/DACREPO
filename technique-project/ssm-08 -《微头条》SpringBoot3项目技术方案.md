@@ -218,7 +218,7 @@ SET FOREIGN_KEY_CHECKS = 1;
 
 
 
-## 【Back-End】Part02：后台功能开发
+## 【Back-End】Part02：后台功能开发 技术方案
 
 ​	明确各层功能，层层递进：模块 - 页面 - 功能点 - 前端接口文档需求：
 
@@ -264,7 +264,7 @@ SET FOREIGN_KEY_CHECKS = 1;
 
 ###### 2.接口文档
 
-###### 3.@Controller - 表述层Restful服务代码实现
+###### 3.@Controller - 表述层 Restful 服务代码实现
 
 ###### 4.@Service层 - 核心业务逻辑层代码实现
 

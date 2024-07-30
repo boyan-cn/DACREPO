@@ -1,4 +1,4 @@
-# solution - Druid 与 Springboot3 不完全适配问题！
+# 解决方案 - Druid 与 Springboot3 不完全适配问题！
 
 > [!CAUTION]
 >
