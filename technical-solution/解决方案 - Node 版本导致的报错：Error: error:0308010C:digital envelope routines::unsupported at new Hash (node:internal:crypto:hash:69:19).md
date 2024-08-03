@@ -1,4 +1,4 @@
-# 解决方案 Error: error:0308010C:digital envelope routines::unsupported at new Hash (node:internal/crypto/hash:69:19)
+# 解决方案 - Node 版本导致的报错：Error: error:0308010C:digital envelope routines::unsupported at new Hash (node:internal/crypto/hash:69:19)
 
 ### 1. 控制台报错信息：
 
