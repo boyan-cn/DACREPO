@@ -1,4 +1,4 @@
-# JWT - JsonWebToken、实现单点登录
+# JWT - Json Web Token 实现单点登录
 
 
 

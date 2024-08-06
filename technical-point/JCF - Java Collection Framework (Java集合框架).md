@@ -1,33 +1,32 @@
-# JCF(Java集合框架) - 面试题分析（面向面试题的学习）
+# JCF - Java Collection Framework (Java集合框架)
 
-Java Collection Framework，JCF，Java集合框架，相关内容和面试对答
+> - Java Collection Framework，JCF，Java集合框架，相关内容和面试对答
+> - [Java集合框架 - 飞书文档](https://ls8sck0zrg.feishu.cn/wiki/AQDbwsUG8iRH1bkxPtWcnJpDnxf)
 
-[Java集合框架 - 飞书文档]: https://ls8sck0zrg.feishu.cn/wiki/AQDbwsUG8iRH1bkxPtWcnJpDnxf
 
-------
 
 ## A. 概述/总体架构
 
-JCF一共提供15种容器接口，其中只能存放引用类型的对象（基础数据类型需要转换后Integer、Double...再放入）
+JCF 一共提供 15 种容器接口，其中只能存放引用类型的对象（基础数据类型需要转换后 Integer、Double...再放入）
 
-JCF中的内容分为两大类：
+JCF 中的内容分为两大类：
 
-- Collection - 存储Object对象；
-- Map - 实际是关联式容器，存储<Key, Object>，本质是存储<Object,Object>，比单纯的Collection多了关联式对应关系，所以多一部分内容；
+- Collection - 存储 Object 对象；
+- Map - 实际是关联式容器，存储<Key, Object>，本质是存储<Object,Object>，比单纯的 Collection 多了关联式对应关系，所以多一部分内容；
 
-Java提供Map->Collection之间转换的快捷方法，需要的时候可以直接调用，很方便：
+Java 提供 Map->Collection 之间转换的快捷方法，需要的时候可以直接调用，很方便：
 
 - 什么场景下需要这种转换？
 
-  ​	因为Map存储的信息能比Collection多出关联关系的部分，当只需要对其中一类Object进行处理时，将这一类单独转换成Collection从而进行快速操作，会很方便！比如：在某类Object中查找/排序某项内容，就可以转换后再对这个Collection进行方法调用，可以很大程度上简化操作。
+  ​	因为 Map 存储的信息能比 Collection 多出关联关系的部分，当只需要对其中一类 Object 进行处理时，将这一类单独转换成Collection 从而进行快速操作，会很方便！比如：在某类 Object 中查找/排序某项内容，就可以转换后再对这个 Collection 进行方法调用，可以很大程度上简化操作。
 
 ![image-jcf-01](https://raw.githubusercontent.com/boyan-cn/pic-bed/main/img/image-jcf-01-20240219222121429.png)
 
 - 其中虚线表示实现，实现表示继承；
-- Stack 已经在JDK1.6中就被 **Deque** 取代了；
+- Stack 已经在 JDK1.6 中就被 **Deque** 取代了；
 - 右下方主要标注了：不同实现时所用的数据结构；
 
-------
+
 
 ## B. 容器特性原理
 
@@ -35,23 +34,23 @@ Java提供Map->Collection之间转换的快捷方法，需要的时候可以直�
 
 #### 1.1 - TreeMap
 
-基于红黑树实现的一种提供顺序访问的Map（这里顺序访问指的是对树的中序遍历）
+基于红黑树实现的一种提供顺序访问的 Map（这里顺序访问指的是对树的中序遍历）
 
-- 实现SortedMap接口,能够把元素根据键Key排序。默认是升序列,使用teraton遍历时会拿到一个升序的记录序列。
-- 因为需要排序，所以key需要定义比较大小的逻辑，具体顺序可以由指定的Comparator来决定，或者根据键的自然顺序来判断。
+- 实现 SortedMap 接口,能够把元素根据键 Key 排序。默认是升序列,使用 teraton 遍历时会拿到一个升序的记录序列。
+- 因为需要排序，所以 key 需要定义比较大小的逻辑，具体顺序可以由指定的 Comparator 来决定，或者根据键的自然顺序来判断。
 
-##### 1.1.1* - Object的大小比较 - Comparable / Comparator
+##### 1.1.1* - Object 的大小比较 - Comparable / Comparator
 
-- 基础包装类：Integer,Sting等可以默认支持排序（eg. 如果是String类型，会默认按照ASC码比较大小）
-- 自定义类：通过**实现“Comparable”接口或自定义“Comparator”实现**的：
-  - “Comparable”接口是可以在自定义类中修改时使用的，通过重写“compareTo()”和定义比较规则。
-  - “Comparator”是在不想/无法修改源码的情况下使用的，新建类定义比较方法。
+- 基础包装类：Integer,Sting 等可以默认支持排序（eg. 如果是 String 类型，会默认按照 ASC 码比较大小）
+- 自定义类：通过**实现“ Comparable ”接口或自定义“ Comparator ”实现**的：
+  - “ Comparable ”接口是可以在自定义类中修改时使用的，通过重写“ compareTo() ”和定义比较规则。
+  - “ Comparator ”是在不想/无法修改源码的情况下使用的，新建类定义比较方法。
 - 两种排序方式：
-  - 自然排序：由加入到TreeSet中的对象本身指定比较规则，这是默认的排序方式 - “Comparable”接口；
+  - 自然排序：由加入到 TreeSet 中的对象本身指定比较规则，这是默认的排序方式 - “ Comparable ”接口；
     - 自然顺序同样需要符合一个约定，就是 compareTo 的返回值需要和 equals 一致，否则就会出现模棱两可情况。
 
-  - 客户化/自定义排序：在创建TreeSet对象时指定比较规则 - “Comparator”新创建类；
-    - 在“2.2.1 - TreeSet”部分有具体实例 - 新创建Comparator类的应用实例：
+  - 客户化/自定义排序：在创建 TreeSet 对象时指定比较规则 - “ Comparator ”新创建类；
+    - 在“2.2.1 - TreeSet ”部分有具体实例 - 新创建 Comparator 类的应用实例：
 
 
 ```java
@@ -68,7 +67,7 @@ public class EmployeeComparator implements Comparator<Employee>{
 ```
 
 ```java
-// 在构造TreeSet实例时调用这个类的：TreeSet(Comparator comparator() 构造方法：
+// 在构造 TreeSet 实例时调用这个类的：TreeSet(Comparator comparator() 构造方法：
 Set<Employee> set = new TreeSet<Employee>(new EmployeeComparator());
 
 Employee employee1=new Employee("Tom",15);
@@ -89,12 +88,12 @@ for(Employee e: set)
 
 ##### 1.2.1 - 基本特点
 
--  基于散列表,访问速度快。进行put或者get操作,可以达到常数时间的性能。
+-  基于散列表,访问速度快。进行 put 或者 get 操作,可以达到常数时间的性能。
 
--  元素之间没有顺序性（一看见Hash就知道了）
--  HashMap最多只允许一条记录的键Key为null，但允许多条记录的值为null; 
+-  元素之间没有顺序性（一看见 Hash 就知道了）
+-  HashMap 最多只允许一条记录的键 Key 为 null，但允许多条记录的值为 null; 
 
--  非线程安全，需要保证线程安全推荐使用并发包中的ConcurrentHashMap，HashMap没有做并发处理，在多线程使用场景的情况下会出问题；
+-  非线程安全，需要保证线程安全推荐使用并发包中的 ConcurrentHashMap，HashMap 没有做并发处理，在多线程使用场景的情况下会出问题；
 -  实现：
   - Java7：采用(数组+链表)实现
   - Java8：采用(数组+链表+红黑树)实现。
@@ -110,18 +109,18 @@ for(Employee e: set)
 
 HashMap 基础结构：
 
-1. <K,V>结点：Java 7中称**Entry**，Java 8中称**Node**，Java 8中如果转换成红黑树就使用**TreeNode**(增加lchild、rchild、parent引用地址..)；
+1. <K,V>结点：Java 7中称 **Entry**，Java 8中称 **Node**，Java 8中如果转换成红黑树就使用 **TreeNode** (增加lchild、rchild、parent引用地址..)；
    - 包含4方面内容：
-     - Key：<K,V>中的Key，是Map中的唯一标识；
-     - Value：<K,V>中的Value，是值Object；
-     - Hash：Key对应的哈希值，存储在Node中可以更快的定位元素；
-     - Next：用于解决冲突，存储后一个Node地址（链式存储结构）；
-2. bucket array 桶数组：一维数组，存储<K,V>**键值对结点**，数组下标对应处理过的Hash值；
-3. 链式结构处理冲突：在Java8中，为了解决哈希冲突，多个Node对应同一个Hash值（数组下标）时，使用链式结构连接多个Node。
-   1. 链表的时间复杂度是O(n)，每次冲突使用**头插法**，在bucket array和Node1之间插入冲突的新Node；
+     - Key：<K,V>中的 Key，是 Map 中的唯一标识；
+     - Value：<K,V>中的 Value，是值 Object；
+     - Hash：Key 对应的哈希值，存储在 Node 中可以更快的定位元素；
+     - Next：用于解决冲突，存储后一个 Node 地址（链式存储结构）；
+2. bucket array 桶数组：一维数组，存储<K,V>**键值对结点**，数组下标对应处理过的 Hash 值；
+3. 链式结构处理冲突：在 Java8 中，为了解决哈希冲突，多个 Node 对应同一个 Hash 值（数组下标）时，使用链式结构连接多个 Node。
+   1. 链表的时间复杂度是 O(n) ，每次冲突使用**头插法**，在 bucket array 和 Node1 之间插入冲突的新 Node；
    2. 为了提高性能对链表结构的应用进行长度限制：当哈希表中，Node容量达到64，并且链表中元素达到8个，就升级为红黑树链式结构；
    3. 升级成红黑树结构：
-      - 基础键值对结点从Node->TreeNode；
+      - 基础键值对结点从 Node->TreeNode；
       - 查找的时间复杂度：O(N)->O(logN)；
       - 红黑树访问顺序：顺序访问 == 中序遍历；
 
@@ -135,36 +134,36 @@ HashMap 基础结构：
 public HashMap(int initialCapacity, float loadFactor){// ...}
 ```
 
-​	hashMap初始化的时候,可以指定初始容量和负载因子。如果不指定会有默认值：初始容量指定了初始table的大小,负载系数用来指定自动扩容的临界值。当entry的数量超过capacity+load factor时,容器将自动扩容并重新哈希。对于插入元素较多的场景,将初始容量设大可以减少重新哈希的次数。
+​	hashMap 初始化的时候,可以指定初始容量和负载因子。如果不指定会有默认值：初始容量指定了初始 table 的大小,负载系数用来指定自动扩容的临界值。当 entry 的数量超过 capacity+load factor 时,容器将自动扩容并重新哈希。对于插入元素较多的场景,将初始容量设大可以减少重新哈希的次数。
 
-- initialCapacity:初始容量，默认值16 
-- loadFactor:负载因子，默认0.75，元素个数达到总容量的75%时,会触发扩容操作。
+- initialCapacity :初始容量，默认值16 
+- loadFactor :负载因子，默认0.75，元素个数达到总容量的75%时,会触发扩容操作。
 
 ###### 	2 - get 查找
 
-- 通过Hash(x)，计算得到bucket array数组下标；
-- 遍历数组下标对应链式结构（链表/红黑树）并通过唯一标识K的Key.equals(k)判断是否找到目标键值对结点；
+- 通过 Hash(x)，计算得到 bucket array 数组下标；
+- 遍历数组下标对应链式结构（链表/红黑树）并通过唯一标识 K 的 Key.equals(k) 判断是否找到目标键值对结点；
 
 ###### 	3 - put 插入
 
-- 先执行类似get的过程，查看是否已存在；
-- 如果确定不存在，执行add，使用头插法，通过改变引用位置插入新键值对结点Node；
+- 先执行类似 get 的过程，查看是否已存在；
+- 如果确定不存在，执行 add ，使用头插法，通过改变引用位置插入新键值对结点 Node；
 
 ###### 	4 - remove 删除
 
-- 先找到key之对应的目标键值对结点Node
+- 先找到 key 之对应的目标键值对结点 Node
 
 - 如果确定存在，执行删除操作，即通过改变引用位置进行删除；
 
 ##### 1.2.4* - 链表 vs 红黑树 - 各操作的最坏时间复杂度
 
-- 链表的CRUD操作具有O(N)的时间复杂度；
+- 链表的 CRUD 操作具有 O(N) 的时间复杂度；
 
-- 红黑树的CRUD操作都具有O(logN)的时间复杂度；
+- 红黑树的 CRUD 操作都具有 O(logN) 的时间复杂度；
 
 #### 1.3 - LinkedHashMap - HashMap的子类
 
-​	是HashMap的子类，继承了所有HashMap的特性，并维护了一个双向链表。`LinkedHashMap` 中的双向链表实际上同时负责完成两个独立的任务：1. 解决哈希冲突 2. 维护元素的插入或访问顺序。
+​	是 HashMap 的子类，继承了所有 HashMap 的特性，并维护了一个双向链表。`LinkedHashMap` 中的双向链表实际上同时负责完成两个独立的任务：1. 解决哈希冲突 2. 维护元素的插入或访问顺序。
 
 	1. 解决哈希冲突：从单链表->双向链表实现；
 	2. 维护Node的插入和访问顺序（put、 get、 compute等都算作“使用”）：顺序为插入顺序或者最近最少使用(LRU)顺序，具体使用哪个可以在构造时用参数指定。此LRU 机制可以用于建设对象的缓存和淘汰机制,将最近很少访问的对象给释放掉。
@@ -175,11 +174,13 @@ public HashMap(int initialCapacity, float loadFactor){// ...}
 
 #### ~~1.4 - HashTable~~
 
-​	功能与hashMap类似,且具有并发安全性。但是不再推荐使用,因为并发效率低。
+​	功能与 hashMap 类似,且具有并发安全性。但是不再推荐使用,因为并发效率低。
 
-​	所以在不需要考虑的并发的场景用HashMap,需要并发的场景用ConcurrentHashMap。一般不再使用HashTable。
+​	所以在不需要考虑的并发的场景用 HashMap ,需要并发的场景用 ConcurrentHashMap。一般不再使用 HashTable。
 
-------
+
+
+
 
 ### 2 - Collection\<Object>：一般容器
 
@@ -197,33 +198,33 @@ public HashMap(int initialCapacity, float loadFactor){// ...}
 
 - capacity：表示数组能容的元素个数。
 
-  - 注意: new一个数认aralist,初给化的容量是0，只有当第一次插入元素之后，容量会变为DEFAUT_CAPACITY=10; ·
+  - 注意: new 一个数认 aralist ,初给化的容量是0，只有当第一次插入元素之后，容量会变为 DEFAUT_CAPACITY=10; ·
 
   - 扩容：当插入新元素时，会先校验级组大小是否能容纳所有元素，如果不满足时需要扩容，扩容会创建一个新的效组，将现有效组数据据贝到新数组;；
 
   - 扩容大小：每次数组容量的增长大约是其原容量的15倍。这种操作的代价是很高的，因此在实际使用时我们应该尽量避免数组容量的扩张。
 
-  - 当我们可预知要保存的元素的多少时，要在构造rrayLis实例时，就指定其容量，以避免数组扩容的发生。
+  - 当我们可预知要保存的元素的多少时，要在构造 arrayList 实例时，就指定其容量，以避免数组扩容的发生。
 
     - ```java
       ArrayList<String> list = new ArrayList<>(50);		// 可选：是否在初始化时规定ArrayList实例的capacity；
       ```
 
-  - 或者根据实际插入数据情况,提前通过调ensureCapacily方法来手动增加ArrayList实例的容量,以减少递增式再分配的数量。(例如我已知后面会陆续插入100个数据,那就可以提前调用ensure-Capadih请保数组可以容的100个,而不是等插入过程中再去多次扩容)。
+  - 或者根据实际插入数据情况,提前通过调 ensureCapacily 方法来手动增加 ArrayList 实例的容量,以减少递增式再分配的数量。(例如我已知后面会陆续插入100个数据,那就可以提前调用ensure-Capadih请保数组可以容的100个,而不是等插入过程中再去多次扩容)。
 
 - 底层采用Object[]数组存储数据,能容纳任何类型的对象。
 
 ##### 2.1.2 - LinkedList 
 
-​	基于双向链表实现（Doubly Linked List）维护头尾两个指针：prev，element，next；需要遍历的操作时间复杂度都是O(N)，只需要变换指针；
+​	基于双向链表实现（Doubly Linked List）维护头尾两个指针：prev，element，next；需要遍历的操作时间复杂度都是 O(N)，只需要变换指针；
 
-##### 2.1.3* - “线程不安全” - ArrayList LinkedList都是
+##### 2.1.3* - “线程不安全” - ArrayList LinkedList 都是
 
 ###### 1 - 什么是 “线程安全” vs “线程不安全”？
 
 ​	在多线程编程中，当一个数据结构或算法在多线程环境下使用时，如果没有进行适当的同步或并发控制，就可能会导致数据的不一致性或状态的混乱，这种情况被称为“线程不安全”。
 
-​	“线程安全”，比如Vector，具备使用线程同步能力，规定多线程互斥写入Vector，就称Vector是线程安全的。
+​	“线程安全”，比如 Vector，具备使用线程同步能力，规定多线程互斥写入 Vector，就称 Vector 是线程安全的。
 
 ###### 2 - 为什么 `ArrayList` 和 `LinkedList` 是线程不安全的？
 
@@ -256,9 +257,9 @@ public HashMap(int initialCapacity, float loadFactor){// ...}
 
 ##### ~~2.1.4 - Vector~~
 
-​	Vector基于数组实现，是Java早期提供的线程安全的动态数组，但特性与ArrayList类似，一般如果不需要线程安全的场景下不再使用；
+​	Vector 基于数组实现，是 Java 早期提供的线程安全的动态数组，但特性与 ArrayList 类似，一般如果不需要线程安全的场景下不再使用；
 
-------
+
 
 #### 2.2 - Set - 集合
 
@@ -268,39 +269,39 @@ public HashMap(int initialCapacity, float loadFactor){// ...}
 
 - 基于红黑树实现：
 
-  - 使用二叉树原理，对元素进行排序，插入元素对需要调整做的结构，将元素放到指定位量。支持自然顺序访问，但是add、delete、contains等操作要相对低效O(log(N))
+  - 使用二叉树原理，对元素进行排序，插入元素对需要调整做的结构，将元素放到指定位量。支持自然顺序访问，但是add、delete、contains 等操作要相对低效 O(log(N))
 
-- TreeSet支持两种排序方式：
+- TreeSet 支持两种排序方式：
 
-  - 自然排序：由加入到TreeSet中的对象本身指定比较规则。这是默认的排序方式。
-  - 客户化/自定义排序：在创建TreeSet对象时指定比较规则。
+  - 自然排序：由加入到 TreeSet 中的对象本身指定比较规则。这是默认的排序方式。
+  - 客户化/自定义排序：在创建 TreeSet 对象时指定比较规则。
 
   **1．自然排序**
 
-  ​	在JDK中，有一部分类实现了Comparable接口，如Integer、Double和String等。Comparable接口有一个compareTo(Object o)方法，用来指定对象的比较规则，它的返回值为整数类型。对于表达式x.compareTo(y)，如果返回值为0，表示x 和y相等；如果返回值大于0，表示x大于y；如果返回值小于0，表示x小于y。
+  ​	在 JDK 中，有一部分类实现了 Comparable 接口，如 Integer、Double 和 String 等。Comparable 接口有一个compareTo(Object o) 方法，用来指定对象的比较规则，它的返回值为整数类型。对于表达式 x.compareTo(y)，如果返回值为0，表示 x 和 y 相等；如果返回值大于0，表示 x 大于 y；如果返回值小于0，表示 x 小于 y。
 
-  ​	TreeSet调用对象的compareTo()方法比较集合中对象的大小，然后进行升序排列，这种排序方式称为自然排序。
+  ​	TreeSet 调用对象的 compareTo() 方法比较集合中对象的大小，然后进行升序排列，这种排序方式称为自然排序。
 
-  ​	使用自然排序时，加入TreeSet的对象必须：1. 是同类型的 2. 类型必须 implements Comparable interface；
+  ​	使用自然排序时，加入 TreeSet 的对象必须：1. 是同类型的 2. 类型必须 implements Comparable interface；
 
   **2．客户化/自定义排序**
 
-  ​	java.util.Comparator接口用于指定比较规则，它的compare(Object object1,Object object2)方法用于比较两个对象的大小。如果希望TreeSet仅按照Employee对象的name属性进行降序排列，可以先创建一个实现Comparator接口的EmployeeComparator类。
+  ​	java.util.Comparator 接口用于指定比较规则，它的 compare(Object object1,Object object2) 方法用于比较两个对象的大小。如果希望 TreeSet 仅按照 Employee 对象的 name 属性进行降序排列，可以先创建一个实现 Comparator 接口的 EmployeeComparator 类。
 
 ##### 2.2.2 - HashSet - 底层通过HashMap实现数据存储
 
-- HashSet中所有元素的Value值统一为“PRESENT”，是dummy value to associate with an Object in the backing HashMap，虚拟值；
-- HashSet中所有操作基本上都是调用HashMap的方法实现的，所以非常简单；
+- HashSet 中所有元素的 Value 值统一为“PRESENT”，是 dummy value to associate with an Object in the backing HashMap，虚拟值；
+- HashSet 中所有操作基本上都是调用 HashMap 的方法实现的，所以非常简单；
 
 ##### 2.2.3 - LinkedHashSet - 底层通过LinkedHashMap实现数据存储
 
-- HashSet的子类，直接super调用，实现更简单。
+- HashSet 的子类，直接 super 调用，实现更简单。
 
-------
+
 
 #### 2.3 - Queue - *会在数据结构中重点掌握使用
 
-两者都是Java集合框架 (JCF) 中非常有用的数据结构，适用于不同的应用场景。这里简单介绍一下：
+两者都是 Java 集合框架  (JCF)  中非常有用的数据结构，适用于不同的应用场景。这里简单介绍一下：
 
 ##### 2.3.1 - Deque - 普通队列和栈操作
 
@@ -327,33 +328,33 @@ public HashMap(int initialCapacity, float loadFactor){// ...}
 
 ​	在面试中可能更多的会出现在手撕算法的时候，典型例题包括：堆排序、求第K大的数、带权图的遍历等，所以需要会熟练使用才行。
 
-------
+
 
 ## C. 思考问答自测
 
-[Java集合框架 - 面试与分析 - 飞书文档]: https://ls8sck0zrg.feishu.cn/wiki/EfBZwvKK5iBnLpkFkrxchHsVnAd
+> [Java集合框架 - 面试与分析 - 飞书文档](https://ls8sck0zrg.feishu.cn/wiki/EfBZwvKK5iBnLpkFkrxchHsVnAd)
 
-#### 1 - 讲一下HashMap的工作原理？
+#### 1 - 讲一下 HashMap 的工作原理？
 
-#### 2 - HashMap的put流程？
+#### 2 - HashMap 的 put 流程？
 
-#### 3 - HashMap的长度为什么是2的幂次方？
+#### 3 - HashMap 的长度为什么是 2 的幂次方？
 
-#### 4 - HashMap多线程操作导致死循环问题？
+#### 4 - HashMap 多线程操作导致死循环问题？
 
 #### 5 - HashMap 和 HashTable 有什么区别？
 
-#### 6 - HashMap, LinkedHashMap, TreeMap有什么区别？
+#### 6 - HashMap, LinkedHashMap, TreeMap 有什么区别？
 
-#### 7 - 为什么 ConcurrentHashMap比 HashTable效率高？
+#### 7 - 为什么 ConcurrentHashMap 比 HashTable 效率高？
 
 #### 8 - 说说 List, Set, Queue, Map 四者的区别？
 
-#### 9 - ArrayList和Array(数组)的区别？
+#### 9 - ArrayList 和 Array (数组)的区别？
 
 #### 10 - ArrayList 与 LinkedList 区别？
 
-#### 11 - Comparable和 Comparator的区别？
+#### 11 - Comparable 和 Comparator 的区别？
 
 #### 12 - 比较 HashSet、 LinkedHashSet 和 TreeSet 三者的异同？
 
@@ -361,10 +362,11 @@ public HashMap(int initialCapacity, float loadFactor){// ...}
 
 #### 14 - 说一说 PriorityQueue？
 
-------
+
 
 ## D. 进阶阅读与问题
 
-[08 对比Vector、ArrayList、LinkedList有何区别？-极客时间]: https://learn.lianglianglee.com/%e4%b8%93%e6%a0%8f/Java%20%e6%a0%b8%e5%bf%83%e6%8a%80%e6%9c%af%e9%9d%a2%e8%af%95%e7%b2%be%e8%ae%b2/08%20%20%e5%af%b9%e6%af%94Vector%e3%80%81ArrayList%e3%80%81LinkedList%e6%9c%89%e4%bd%95%e5%8c%ba%e5%88%ab%ef%bc%9f-%e6%9e%81%e5%ae%a2%e6%97%b6%e9%97%b4.md
-[09 对比Hashtable、HashMap、TreeMap有什么不同？-极客时间]: https://learn.lianglianglee.com/%e4%b8%93%e6%a0%8f/Java%20%e6%a0%b8%e5%bf%83%e6%8a%80%e6%9c%af%e9%9d%a2%e8%af%95%e7%b2%be%e8%ae%b2/09%20%20%e5%af%b9%e6%af%94Hashtable%e3%80%81HashMap%e3%80%81TreeMap%e6%9c%89%e4%bb%80%e4%b9%88%e4%b8%8d%e5%90%8c%ef%bc%9f-%e6%9e%81%e5%ae%a2%e6%97%b6%e9%97%b4.md
+> [08 对比Vector、ArrayList、LinkedList有何区别？-极客时间](https://learn.lianglianglee.com/%e4%b8%93%e6%a0%8f/Java%20%e6%a0%b8%e5%bf%83%e6%8a%80%e6%9c%af%e9%9d%a2%e8%af%95%e7%b2%be%e8%ae%b2/08%20%20%e5%af%b9%e6%af%94Vector%e3%80%81ArrayList%e3%80%81LinkedList%e6%9c%89%e4%bd%95%e5%8c%ba%e5%88%ab%ef%bc%9f-%e6%9e%81%e5%ae%a2%e6%97%b6%e9%97%b4.md)
+>
+> [09 对比Hashtable、HashMap、TreeMap有什么不同？-极客时间](https://learn.lianglianglee.com/%e4%b8%93%e6%a0%8f/Java%20%e6%a0%b8%e5%bf%83%e6%8a%80%e6%9c%af%e9%9d%a2%e8%af%95%e7%b2%be%e8%ae%b2/09%20%20%e5%af%b9%e6%af%94Hashtable%e3%80%81HashMap%e3%80%81TreeMap%e6%9c%89%e4%bb%80%e4%b9%88%e4%b8%8d%e5%90%8c%ef%bc%9f-%e6%9e%81%e5%ae%a2%e6%97%b6%e9%97%b4.md)
 
