@@ -1,9 +1,5 @@
 # Part04 - SpringMVC - 表述层框架 - 实战指南 - 精华总结版
 
-> [!NOTE]
->
-> 
-
 
 
 ## 一、SpringMVC 简介和体验

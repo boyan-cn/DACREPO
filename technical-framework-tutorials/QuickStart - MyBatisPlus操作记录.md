@@ -1,4 +1,4 @@
-# Mybatis：“quickstart-demo”（实战篇）
+# QuickStart - MyBatisPlus操作记录（实战篇）
 
 > [!NOTE]
 >
@@ -7,7 +7,7 @@
 
 
 
-##  一. 新建项目JDBC测试
+##  一. 新建项目 JDBC 测试
 
 ### 1）在IDEA创建新项目
 
