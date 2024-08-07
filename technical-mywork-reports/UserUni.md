@@ -1,8 +1,8 @@
 # 用户中心（上）主题：项目初始化
 
-## 前端初始化
 
-------
+
+## 前端初始化
 
 ### 1. Ant Design Pro 开箱即用
 
@@ -28,9 +28,7 @@ pro create myapp
 
 5. README.md中会有关于 `start` , `build`, ... 的 `shell`命令，阅读执行即可；
 
-   ------
-
-###  2. 开启Umi UI
+   
 
 #### （1）Umi JS 插件：MAX和UMI的区别
 
@@ -53,7 +51,7 @@ pro create myapp
 
 即可开启Umi UI小组件！
 
-------
+
 
 ### 3. 前端框架介绍 & 代码瘦身
 
@@ -97,15 +95,11 @@ sudo npm run i18n-remove
      3. 删去此处openAPI的引用代码，再次运行；
      4. 运行成功；
 
-------
-
 
 
 ## 后端初始化
 
 ：现在Spring官方的版本：Java 17，代替之前的Java 8；
-
-------
 
 ### 1. 环境准备：MySQL数据库安装
 
@@ -122,7 +116,7 @@ mysql -u root -p						 # 登录（用户名：root，密码：刚才设置的）
 
 ：不知道上次为什么安装那么久，可能冲突了，这次安装大约耗时5min～
 
-------
+
 
 ### 2. Java后端项目初始化的三种方式
 
@@ -130,7 +124,7 @@ mysql -u root -p						 # 登录（用户名：root，密码：刚才设置的）
 2. SpringBoot官方的模板生成器：https://start.spring.io/ （推荐），在`EXPLORE`探索部分可以直接预览生成的代码里有什么;
 3. Intellij IDEA（最方便也是最推荐的）
 
-------
+
 
 ### 3. 项目框架配置
 
@@ -166,7 +160,7 @@ mysql -u root -p						 # 登录（用户名：root，密码：刚才设置的）
 
 10. 点击`Finish`，生成代码；
 
-------
+
 
 ### 4. Mybatis-plus 整合
 
